@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dropdown Menu (Left-Aligned, Full Stagger, No Arrows)</title>
+
+  <!-- Montserrat Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+       1) Base Reset
+    ───────────────────────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      background: transparent; /* if embedding as an iframe in Wix */
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       2) Top-Level Container (Horizontal Bar) – FLUSH LEFT
+    ───────────────────────────────────────────────────────────── */
+    .menu {
+      list-style: none;
+      display: flex;
+      justify-content: flex-start; /* items start at the absolute left */
+      background: #ffffff;
+      padding-left: 20px;          /* small left padding */
+      user-select: none;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       3) Top-Level Items
+    ───────────────────────────────────────────────────────────── */
+    .menu > li {
+      position: relative;
+      margin-right: 30px; /* space between top-level siblings */
+    }
+
+    .menu > li > a {
+      display: block;
+      padding: 14px 10px;
+      color: #333333;
+      font-size: 16px;
+      font-weight: 300;            /* Montserrat Light */
+      border-radius: 4px;
+      transition: color 0.2s ease, transform 0.2s ease;
+      text-align: left;            /* left-aligned text */
+    }
+
+    .menu > li > a:hover {
+      color: #8B4000; /* brown on hover */
+      transform: scale(1.05);
+    }
+
+    .menu > li > a.active {
+      background: #8B4000;
+      color: #F8F4EF; /* ivory text when clicked/active */
+      font-weight: 500;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       4) First-Level Dropdown Container + Shadow
+    ───────────────────────────────────────────────────────────── */
+    .menu li > ul {
+      list-style: none;
+      position: absolute;
+      top: 100%;       /* directly below the parent link */
+      left: 0;         /* align edges flush left with parent */
+      background: #ffffff;
+      border: 1px solid #ddd;
+      min-width: 200px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      border-radius: 4px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      pointer-events: none; /* until “open” is added */
+    }
+
+    .menu li.has-child.open > ul {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       5) First-Level Submenu Items: staggered fadeInDown
+    ───────────────────────────────────────────────────────────── */
+    .menu li > ul > li {
+      position: relative;
+      opacity: 0;
+      transform: translateY(-10px);
+      animation-name: fadeInDown;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+    }
+    /* Stagger delays for up to 12 items (add more if needed) */
+    .menu li.has-child.open > ul > li:nth-child(1)  { animation-delay: 0.05s; }
+    .menu li.has-child.open > ul > li:nth-child(2)  { animation-delay: 0.10s; }
+    .menu li.has-child.open > ul > li:nth-child(3)  { animation-delay: 0.15s; }
+    .menu li.has-child.open > ul > li:nth-child(4)  { animation-delay: 0.20s; }
+    .menu li.has-child.open > ul > li:nth-child(5)  { animation-delay: 0.25s; }
+    .menu li.has-child.open > ul > li:nth-child(6)  { animation-delay: 0.30s; }
+    .menu li.has-child.open > ul > li:nth-child(7)  { animation-delay: 0.35s; }
+    .menu li.has-child.open > ul > li:nth-child(8)  { animation-delay: 0.40s; }
+    .menu li.has-child.open > ul > li:nth-child(9)  { animation-delay: 0.45s; }
+    .menu li.has-child.open > ul > li:nth-child(10) { animation-delay: 0.50s; }
+    .menu li.has-child.open > ul > li:nth-child(11) { animation-delay: 0.55s; }
+    .menu li.has-child.open > ul > li:nth-child(12) { animation-delay: 0.60s; }
+    /* …extend nth-child selectors if you have more than 12 items */
+
+    .menu li > ul > li > a {
+      display: block;
+      padding: 10px 14px;
+      color: #333333;
+      font-weight: 300;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: color 0.2s ease, transform 0.2s ease-in-out;
+      text-align: left;
+    }
+
+    .menu li > ul > li > a:hover {
+      color: #8B4000;
+      transform: scale(1.03);
+    }
+    .menu li > ul > li > a.active {
+      background: #8B4000;
+      color: #F8F4EF;
+      font-weight: 500;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       6) Second-Level Dropdown Container + Shadow
+    ───────────────────────────────────────────────────────────── */
+    .menu li > ul > li > ul {
+      list-style: none;
+      position: absolute;
+      top: 0;
+      left: 100%;  /* children appear to the right of their parent item */
+      background: #ffffff;
+      border: 1px solid #ddd;
+      min-width: 200px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      border-radius: 4px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+    }
+
+    .menu li > ul > li.has-child.open > ul {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       7) Second-Level Submenu Items: slideThenWave + waveDrop
+    ───────────────────────────────────────────────────────────── */
+    .menu li > ul > li > ul > li {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    /* First grandchild (slide from left + wave) */
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(1) {
+      animation-name: slideThenWave;
+      animation-duration: 0.6s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.05s;
+    }
+    /* All remaining grandchildren “waveDrop” with staggered delays */
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(2) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.15s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(3) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.25s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(4) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.35s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(5) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.45s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(6) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.55s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(7) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.65s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(8) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.75s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(9) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.85s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(10) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 0.95s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(11) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 1.05s;
+    }
+    .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(12) {
+      animation-name: waveDrop;
+      animation-duration: 0.4s;
+      animation-fill-mode: forwards;
+      animation-delay: 1.15s;
+    }
+    /* …extend nth-child if there are more grandchildren */
+
+    .menu li > ul > li > ul > li > a {
+      display: block;
+      padding: 10px 14px;
+      color: #333333;
+      font-weight: 300;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: color 0.2s ease, transform 0.2s ease;
+      text-align: left;
+    }
+
+    .menu li > ul > li > ul > li > a:hover {
+      color: #8B4000;
+      transform: scale(1.03);
+    }
+    .menu li > ul > li > ul > li > a.active {
+      background: #8B4000;
+      color: #F8F4EF;
+      font-weight: 500;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       8) Keyframes
+    ───────────────────────────────────────────────────────────── */
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideThenWave {
+      0%   { opacity: 0; transform: translateX(-20px) translateY(0); }
+      40%  { opacity: 1; transform: translateX(0) translateY(0); }
+      60%  { opacity: 1; transform: translateY(3px) translateX(5px); }
+      100% { opacity: 1; transform: translateY(0) translateX(0); }
+    }
+    @keyframes waveDrop {
+      0%   { opacity: 0; transform: translateY(-15px) translateX(10px); }
+      60%  { opacity: 1; transform: translateY(3px) translateX(5px); }
+      100% { opacity: 1; transform: translateY(0) translateX(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ─────────────────────────────────────────────────────────────
+     9) Condensed Menu: three top-level items flush left
+     (“ABOUT,” “PUPPIES,” “MORE INFO”)
+  ───────────────────────────────────────────────────────────── -->
+  <ul class="menu">
+    <!-- ABOUT -->
+    <li class="has-child">
+      <a href="#">ABOUT</a>
+      <ul>
+        <li><a href="/about-lone-star-ridgebacks">About Lone Star Ridgebacks</a></li>
+        <li><a href="/testimonials">Testimonials</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </li>
+
+    <!-- PUPPIES (with Parents nested) -->
+    <li class="has-child">
+      <a href="/puppies">PUPPIES</a>
+      <ul>
+        <!-- Current Litter -->
+        <li class="has-child">
+          <a href="#">Current Litter</a>
+          <ul>
+            <li><a href="/puppies/current-litter/group-photos">Group Photos</a></li>
+            <li><a href="/puppies/current-litter/lainey-wilson">Lainey Wilson (Lainey)</a></li>
+            <li><a href="/puppies/current-litter/dolly-parton">Dolly Parton (Dolly)</a></li>
+            <li><a href="/puppies/current-litter/miley-cyrus">Miley Cyrus (Miley)</a></li>
+            <li><a href="/puppies/current-litter/elton-john">Elton John (Elton)</a></li>
+            <li><a href="/puppies/current-litter/cody-johnson">Cody Johnson (CoJo)</a></li>
+            <li><a href="/puppies/current-litter/post-malone">Post Malone (Malone)</a></li>
+            <li><a href="/puppies/current-litter/notorious-big">Notorious B.I.G. (Biggie)</a></li>
+            <li><a href="/puppies/current-litter/johnny-cash">Johnny Cash (Cash)</a></li>
+            <li><a href="/puppies/current-litter/journey">Journey</a></li>
+            <li><a href="/puppies/current-litter/bruno-mars">Bruno Mars (Bruno)</a></li>
+          </ul>
+        </li>
+
+        <!-- Past Litters -->
+        <li class="has-child">
+          <a href="#">Past Litters</a>
+          <ul>
+            <li><a href="/puppies/past-litters/group-photos">Group Photos</a></li>
+            <li><a href="/puppies/past-litters/ross">Ross</a></li>
+            <li><a href="/puppies/past-litters/joey">Joey</a></li>
+            <li><a href="/puppies/past-litters/chandler">Chandler</a></li>
+            <li><a href="/puppies/past-litters/richard">Richard</a></li>
+            <li><a href="/puppies/past-litters/monica">Monica</a></li>
+            <li><a href="/puppies/past-litters/rachel">Rachel</a></li>
+            <li><a href="/puppies/past-litters/phoebe">Phoebe</a></li>
+            <li><a href="/puppies/past-litters/emma">Emma</a></li>
+            <li><a href="/puppies/past-litters/estelle">Estelle</a></li>
+            <li><a href="/puppies/past-litters/carol">Carol</a></li>
+            <li><a href="/puppies/past-litters/janice">Janice</a></li>
+          </ul>
+        </li>
+
+        <!-- Pricing & Reservation Process -->
+        <li class="has-child">
+          <a href="#">Pricing &amp; Reservation Process</a>
+          <ul>
+            <li><a href="/puppies/pricing-reservation/adoption-process">Adoption Process</a></li>
+            <li><a href="/puppies/pricing-reservation/financing">Financing</a></li>
+            <li><a href="/puppies/pricing-reservation/puppy-travel-delivery">Puppy Travel & Delivery</a></li>
+          </ul>
+        </li>
+
+        <!-- Parents (now under Puppies) -->
+        <li class="has-child">
+          <a href="#">Parents</a>
+          <ul>
+            <li><a href="/parents/dam">Dam</a></li>
+            <li><a href="/parents/sire">Sire</a></li>
+          </ul>
+        </li>
+
+        <!-- Adoption Application -->
+        <li><a href="/puppies/adoption-application">Adoption Application</a></li>
+      </ul>
+    </li>
+
+    <!-- MORE INFO -->
+    <li class="has-child">
+      <a href="#">MORE INFO</a>
+      <ul>
+        <li><a href="/shop">Shop</a></li>
+        <li><a href="/resources">Resources</a></li>
+        <li><a href="/faq">FAQ</a></li>
+      </ul>
+    </li>
+  </ul>
+
+
+  <!-- ─────────────────────────────────────────────────────────────────
+     10) JavaScript: Handle “open”/“closing” & Active-link toggling
+  ───────────────────────────────────────────────────────────────── -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const parents = document.querySelectorAll('.menu li.has-child');
+
+      parents.forEach(parentLi => {
+        // Mouse‐enter: clear “closing,” add “open”
+        parentLi.addEventListener('mouseenter', () => {
+          parentLi.classList.remove('closing');
+          parentLi.classList.add('open');
+        });
+
+        // Mouse‐leave: remove “open,” add “closing,” then clear after animation
+        parentLi.addEventListener('mouseleave', () => {
+          parentLi.classList.remove('open');
+          parentLi.classList.add('closing');
+          setTimeout(() => {
+            parentLi.classList.remove('closing');
+          }, 700); // matches the longest grandchild delay (0.6s) + buffer
+        });
+      });
+
+      // Click any <a> to toggle “active” (brown background + ivory text)
+      document.querySelectorAll('.menu a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          if (this.getAttribute('href') === '#') {
+            e.preventDefault();
+          }
+          document.querySelectorAll('.menu a.active').forEach(el => el.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
