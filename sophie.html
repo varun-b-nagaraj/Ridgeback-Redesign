@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Testing Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Droid+Serif:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: transparent;
+            color: #2E2A27;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: clamp(12px, 2vh, 24px);
+            background: transparent;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            gap: clamp(16px, 2.5vh, 32px);
+        }
+
+        .content {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(20px, 3vh, 40px);
+        }
+
+        .test-category {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 1.5vh, 20px);
+        }
+
+        .category-title {
+            font-family: 'Droid Serif', serif;
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: #754530;
+            padding: clamp(8px, 1vh, 12px) clamp(16px, 2vw, 24px) clamp(6px, 0.8vh, 10px);
+            border-bottom: 2px solid #D7C4A3;
+            font-weight: 700;
+        }
+
+        .test-item {
+            background: #F5EFE7;
+            border-radius: clamp(8px, 1.2vw, 16px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(215, 196, 163, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            transform-origin: center;
+            min-height: clamp(60px, 10vh, 90px);
+        }
+
+        .test-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #754530;
+            transform: scaleY(0);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .test-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(117, 69, 48, 0.15);
+            background: #F0D2B2;
+        }
+
+        .test-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .test-link {
+            display: flex;
+            align-items: center;
+            padding: clamp(12px, 2vh, 24px) clamp(16px, 2vw, 32px);
+            text-decoration: none;
+            color: #2E2A27;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            gap: clamp(12px, 1.5vw, 20px);
+        }
+
+        .preview-content {
+            position: absolute;
+            top: 50%;
+            right: -220px;
+            transform: translateY(-50%);
+            width: 180px;
+            height: 80px;
+            background: #F5EFE7;
+            border: 2px solid #754530;
+            border-radius: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 11;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            color: #754530;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(117, 69, 48, 0.2);
+            pointer-events: none; /* <-- Add this line */
+        }
+
+        .test-item:hover .preview-content {
+            opacity: 1;
+            visibility: visible;
+            right: -200px;
+        }
+
+        .preview-checkmark {
+            font-size: 1.5rem;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+
+        .preview-text {
+            font-weight: 500;
+            color: #754530;
+        }
+
+        .test-icon {
+            width: clamp(36px, 5vw, 60px);
+            height: clamp(36px, 5vw, 60px);
+            background: #754530;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F5EFE7;
+            font-size: clamp(1rem, 1.5vw, 1.4rem);
+            flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .test-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(4px, 0.5vh, 8px);
+        }
+
+        .test-title {
+            font-family: 'Droid Serif', serif;
+            font-weight: 700;
+            font-size: clamp(0.95rem, 2vw, 1.3rem);
+            color: #2E2A27;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            line-height: 1.2;
+        }
+
+        .test-description {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: #5c3526;
+            opacity: 0.8;
+            font-weight: 400;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            line-height: 1.3;
+        }
+
+        .arrow {
+            color: #754530;
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            flex-shrink: 0;
+        }
+
+        .test-item:hover .test-title {
+            color: #2E2A27;
+        }
+
+        .test-item:hover .arrow {
+            transform: translateX(8px);
+        }
+
+        /* Breed verification special styling */
+        .breed-verification {
+            background: #754530;
+            color: #F5EFE7;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid #754530;
+        }
+
+        .breed-verification:hover {
+            background: #F5EFE7;
+            color: #754530;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(117, 69, 48, 0.25);
+            border: 1px solid #754530;
+        }
+
+        .breed-verification::before {
+            background: #F5EFE7;
+        }
+
+        .breed-verification .test-icon {
+            background: rgba(245, 239, 231, 0.15);
+            color: #F5EFE7;
+            border: 1px solid rgba(245, 239, 231, 0.3);
+        }
+
+        .breed-verification:hover .test-icon {
+            background: #754530;
+            color: #F5EFE7;
+            border: 1px solid #754530;
+        }
+
+        .breed-verification .test-title {
+            color: #F5EFE7;
+        }
+
+        .breed-verification .test-description {
+            color: rgba(245, 239, 231, 0.85);
+        }
+
+        .breed-verification:hover .test-title {
+            color: #754530;
+        }
+
+        .breed-verification:hover .test-description {
+            color: #5c3526;
+        }
+
+        .breed-verification .arrow {
+            color: #F0D2B2;
+        }
+
+        .breed-verification:hover .arrow {
+            color: #754530;
+            transform: translateX(8px);
+        }
+
+        /* Special preview for breed verification */
+        .breed-verification .preview-content {
+            background: #754530;
+            border: 2px solid #F5EFE7;
+            color: #F5EFE7;
+        }
+
+        .breed-verification .preview-text {
+            color: #F5EFE7;
+        }
+
+        .breed-verification .preview-checkmark {
+            color: #90EE90;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 768px) {
+            .container {
+                padding: clamp(8px, 1.5vh, 16px);
+                gap: clamp(12px, 2vh, 24px);
+            }
+
+            .content {
+                gap: clamp(16px, 2.5vh, 28px);
+            }
+
+            .test-category {
+                gap: clamp(8px, 1.2vh, 16px);
+            }
+
+            .test-link {
+                padding: clamp(10px, 1.5vh, 18px) clamp(12px, 1.8vw, 20px);
+                gap: clamp(8px, 1.2vw, 16px);
+            }
+
+            .preview-content {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+                gap: 16px;
+            }
+
+            .content {
+                gap: 20px;
+            }
+
+            .test-category {
+                gap: 12px;
+            }
+
+            .category-title {
+                font-size: 1rem;
+                padding: 8px 12px 6px;
+            }
+            
+            .test-item {
+                border-radius: 8px;
+                min-height: 70px;
+            }
+            
+            .test-link {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            
+            .test-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+                border-radius: 6px;
+            }
+
+            .test-content {
+                gap: 3px;
+            }
+
+            .test-title {
+                font-size: 0.9rem;
+                line-height: 1.1;
+            }
+
+            .test-description {
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+
+            .arrow {
+                font-size: 1rem;
+            }
+
+            .test-item:hover .arrow {
+                transform: translateX(4px);
+            }
+
+            .breed-verification:hover .arrow {
+                transform: translateX(4px);
+            }
+        }
+
+        @media (max-width: 320px) {
+            .container {
+                padding: 6px;
+                gap: 12px;
+            }
+
+            .content {
+                gap: 16px;
+            }
+
+            .test-category {
+                gap: 8px;
+            }
+
+            .test-link {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+
+            .test-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.9rem;
+            }
+
+            .test-title {
+                font-size: 0.85rem;
+            }
+
+            .test-description {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <!-- Breed Verification -->
+            <div class="test-category">
+                <div class="test-item breed-verification">
+                    <a href="https://drive.google.com/file/d/1rUvAuNqLxZveLnVY_cS6RSvOAFS1eDvc/view?usp=sharing" class="test-link" target="_blank">
+                        <div class="test-icon">🏛️</div>
+                        <div class="test-content">
+                            <div class="test-title">Embark Breed Verification</div>
+                            <div class="test-description">View Sophie's Embark Breed Verification</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- DNA & Genetic Testing -->
+            <div class="test-category">
+                <div class="category-title">Genetic Health Profile</div>
+                
+                <div class="test-item">
+                    <a href="https://app.embarkvet.com/pet/4b002ecf-e5b7-4c55-a240-0f6e7c9d5745/about" class="test-link" target="_blank">
+                        <div class="test-icon">🧬</div>
+                        <div class="test-content">
+                            <div class="test-title">Embark DNA Profile (Full Panel)</div>
+                            <div class="test-description">View Sophie's Embark DNA Profile</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- OFA Testing Results -->
+            <div class="test-category">
+                <div class="category-title">Orthopedic Foundation for Animals (OFA)</div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_0be5e19c9a174ad5850f5ff499852c33.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">🦴</div>
+                        <div class="test-content">
+                            <div class="test-title">Hip Dysplasia Evaluation</div>
+                            <div class="test-description">View Sophie's OFA Test Results for Hips</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_827eb43cb33546fcb14158c54c149708.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">💪</div>
+                        <div class="test-content">
+                            <div class="test-title">Elbow Dysplasia Evaluation</div>
+                            <div class="test-description">View Sophie's OFA Test Results for Elbows</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_a4c4ed4679d24b7e87544a523592cc2d.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">🧠</div>
+                        <div class="test-content">
+                            <div class="test-title">Degenerative Myelopathy (DM)</div>
+                            <div class="test-description">View Sophie's OFA Test Results for DM</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_655390ce514a4663b3ea07645b81fb1c.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">👂</div>
+                        <div class="test-content">
+                            <div class="test-title">Early Onset Deafness (EOD)</div>
+                            <div class="test-description">View Sophie's OFA Test Results for EOD</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_35f1a13277dd4857aa3155edf1b01db0.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">🩸</div>
+                        <div class="test-content">
+                            <div class="test-title">Hemophilia B (HEM-B)</div>
+                            <div class="test-description">View Sophie's OFA Test Results for HEM-B</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_6b4008fbaf9f4103a6ab645dfdb05299.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">🧠</div>
+                        <div class="test-content">
+                            <div class="test-title">Juvenile Myoclonic Epilepsy (JME)</div>
+                            <div class="test-description">View Sophie's OFA Test Results for JME</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="test-item">
+                    <a href="https://42691d7e-f269-4aab-a8ed-c359c7841554.usrfiles.com/ugd/42691d_661f650224a340d7a71dd167a718a4a7.pdf" class="test-link" target="_blank">
+                        <div class="test-icon">💓</div>
+                        <div class="test-content">
+                            <div class="test-title">Exercise-Induced Collapse (EIC)</div>
+                            <div class="test-description">View Sophie's OFA Test Results for EIC</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="preview-content">
+                            <div class="preview-checkmark">✓</div>
+                            <div class="preview-text">APPROVED</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add subtle entrance animation with pixel-based scaling
+        document.addEventListener('DOMContentLoaded', function() {
+            const testItems = document.querySelectorAll('.test-item');
+            testItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px) scale(0.95)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.6s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0) scale(1)';
+                }, index * 100 + 200);
+            });
+        });
+
+        // Add click animation with pixel-based scaling
+        document.querySelectorAll('.test-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const item = this.closest('.test-item');
+                // Calculate current dimensions
+                const rect = item.getBoundingClientRect();
+                const currentWidth = rect.width;
+                const currentHeight = rect.height;
+                
+                // Scale down by 4 pixels in each dimension
+                const scaleX = (currentWidth - 8) / currentWidth;
+                const scaleY = (currentHeight - 4) / currentHeight;
+                
+                item.style.transform = `translateY(-4px) scale(${scaleX}, ${scaleY})`;
+                
+                setTimeout(() => {
+                    item.style.transform = 'translateY(-4px) scale(1, 1)';
+                }, 150);
+            });
+        });
+
+        // Enhanced hover effects with pixel-perfect scaling
+        document.querySelectorAll('.test-item').forEach(item => {
+            const originalRect = item.getBoundingClientRect();
+            
+            item.addEventListener('mouseenter', function() {
+                // Get current dimensions
+                const rect = this.getBoundingClientRect();
+                const currentWidth = rect.width;
+                const currentHeight = rect.height;
+                
+                // Expand by 6 pixels in width, 3 pixels in height
+                const scaleX = (currentWidth + 6) / currentWidth;
+                const scaleY = (currentHeight + 3) / currentHeight;
+                
+                // Apply the transform with translation
+                this.style.transform = `translateY(-4px) scale(${scaleX}, ${scaleY})`;
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1, 1)';
+            });
+        });
+
+        // Font size scaling for hover effects
+        document.querySelectorAll('.test-item').forEach(item => {
+            const title = item.querySelector('.test-title');
+            const description = item.querySelector('.test-description');
+            const arrow = item.querySelector('.arrow');
+            
+            if (title && description && arrow) {
+                const originalTitleSize = parseFloat(getComputedStyle(title).fontSize);
+                const originalDescSize = parseFloat(getComputedStyle(description).fontSize);
+                const originalArrowSize = parseFloat(getComputedStyle(arrow).fontSize);
+                
+                item.addEventListener('mouseenter', function() {
+                    // Increase font sizes by 2px each
+                    title.style.fontSize = (originalTitleSize + 2) + 'px';
+                    description.style.fontSize = (originalDescSize + 1) + 'px';
+                    arrow.style.fontSize = (originalArrowSize + 2) + 'px';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    // Return to original sizes
+                    title.style.fontSize = originalTitleSize + 'px';
+                    description.style.fontSize = originalDescSize + 'px';
+                    arrow.style.fontSize = originalArrowSize + 'px';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

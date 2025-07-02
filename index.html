@@ -549,6 +549,31 @@
       60%  { opacity: 1; transform: translateY(3px) translateX(5px); }
       100% { opacity: 1; transform: translateY(0) translateX(0); }
     }
+
+    /* Two-column submenu layout for overflow */
+    .menu li > ul > li > ul.two-column {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      max-height: 80vh;
+      min-width: 380px;
+      width: max-content;
+      overflow-y: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      background: var(--dropdown-bg);
+      z-index: 1000;
+    }
+    .menu li > ul > li > ul.two-column > li {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      /* Remove animation for two-column mode */
+    }
+    @media (max-width: 900px) {
+      .menu li > ul > li > ul.two-column {
+        grid-template-columns: 1fr;
+        min-width: 200px;
+      }
+    }
   </style>
 </head>
 
@@ -835,6 +860,59 @@
         updateCount++;
         if (updateCount > 5) clearInterval(intervalId);
       }, 4000);
+
+      // --- Dropdown overflow detection for grandchildren ---
+      function adjustGrandchildDropdowns() {
+        // Only for desktop menu
+        if (window.innerWidth <= 700) {
+          document.querySelectorAll('.menu li > ul > li > ul.two-column').forEach(el => {
+            el.classList.remove('two-column');
+          });
+          return;
+        }
+        document.querySelectorAll('.menu li > ul > li > ul').forEach(submenu => {
+          submenu.classList.remove('two-column');
+          submenu.style.maxHeight = '';
+          submenu.style.overflowY = '';
+          // If submenu is not visible, temporarily show it to measure
+          let wasHidden = false;
+          const rect = submenu.getBoundingClientRect();
+          if (rect.height === 0) {
+            submenu.style.visibility = 'hidden';
+            submenu.style.display = 'block';
+            wasHidden = true;
+          }
+          const newRect = submenu.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - newRect.top;
+          const submenuHeight = newRect.height;
+          // If submenu is too tall for the viewport, use two-column layout
+          if (submenuHeight > spaceBelow - 20 && submenu.children.length > 6) {
+            submenu.classList.add('two-column');
+            submenu.style.maxHeight = '80vh';
+            submenu.style.overflowY = 'auto';
+          } else {
+            submenu.classList.remove('two-column');
+            submenu.style.maxHeight = '';
+            submenu.style.overflowY = '';
+          }
+          if (wasHidden) {
+            submenu.style.display = '';
+            submenu.style.visibility = '';
+          }
+        });
+      }
+
+      // Run on open of any grandchild menu
+      document.querySelectorAll('.menu li > ul > li.has-child').forEach(li => {
+        li.addEventListener('mouseenter', adjustGrandchildDropdowns);
+        li.addEventListener('mouseleave', adjustGrandchildDropdowns);
+      });
+
+      // Also run on resize
+      window.addEventListener('resize', adjustGrandchildDropdowns);
+
+      // Initial run
+      setTimeout(adjustGrandchildDropdowns, 500);
 
       // Force all menu links to open in the top window (break out of iframe)
       document.querySelectorAll('.menu a, .mobile-menu a').forEach(link => {
