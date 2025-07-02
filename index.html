@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dropdown Menu (Left-Aligned, Full Stagger, No Arrows)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Dropdown Menu with Hamburger</title>
 
   <!-- Montserrat Font -->
   <link
@@ -11,8 +12,15 @@
   />
 
   <style>
+    :root {
+      --menu-scale: 1;
+      --menu-font-size: calc(16px * var(--menu-scale));
+      --menu-padding: calc(20px * var(--menu-scale));
+      --dropdown-bg: #fff;
+    }
+
     /* ─────────────────────────────────────────────────────────────
-       1) Base Reset
+       1) Base Reset & Prevent Scrolling
     ───────────────────────────────────────────────────────────── */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -20,10 +28,26 @@
       padding: 0;
     }
 
-    body {
+    html, body {
       font-family: 'Montserrat', sans-serif;
       font-weight: 300;
-      background: transparent !important; /* if embedding as an iframe in Wix */
+      background: transparent !important;
+      height: 100vh;
+      overflow: hidden;
+      width: 100%;
+      /* Remove flex centering */
+      display: block;
+      align-items: unset;
+      justify-content: unset;
+    }
+
+    body {
+      min-height: 100vh;
+      min-width: 100vw;
+      /* Remove flex centering */
+      display: block;
+      align-items: unset;
+      justify-content: unset;
     }
 
     a {
@@ -31,67 +55,200 @@
       color: inherit;
     }
 
-
     /* ─────────────────────────────────────────────────────────────
-       2) Top-Level Container (Horizontal Bar) – FLUSH LEFT
+       2) Desktop Menu Container
     ───────────────────────────────────────────────────────────── */
+    .menu-container {
+      width: auto;
+      height: auto;
+      display: block;
+      align-items: unset;
+      justify-content: unset;
+      background: transparent;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: unset;
+      z-index: 100;
+      /* Remove any padding/margin */
+      margin: 0;
+      padding: 0;
+    }
+
     .menu {
       list-style: none;
       display: flex;
-      justify-content: flex-start; /* items start at the absolute left */
+      justify-content: flex-start; /* left align */
+      align-items: flex-start;
       background: transparent;
-      padding-left: 20px;          /* small left padding */
+      padding: var(--menu-padding);
+      margin: 0;
       user-select: none;
+      flex-wrap: wrap;
+      /* Remove any gap from the left/top */
+      padding-top: 0;
+      padding-left: 0;
+      font-size: var(--menu-font-size);
     }
 
     /* ─────────────────────────────────────────────────────────────
-       3) Top-Level Items
+       3) Hamburger Menu (Mobile)
+    ───────────────────────────────────────────────────────────── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 15px;
+      background: transparent;
+      border: none;
+      z-index: 1001;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      left: unset;
+    }
+
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #333333;
+      margin: 3px 0;
+      transition: 0.3s;
+      transform-origin: center;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--dropdown-bg);
+      z-index: 1000;
+      padding: 80px 20px 20px;
+      overflow-y: auto;
+      font-size: var(--menu-font-size);
+    }
+
+    .mobile-menu.active {
+      display: block;
+    }
+
+    .mobile-menu ul {
+      list-style: none;
+    }
+
+    .mobile-menu > ul > li {
+      border-bottom: 1px solid #eee;
+    }
+
+    .mobile-menu a {
+      display: block;
+      padding: calc(15px * var(--menu-scale)) calc(10px * var(--menu-scale));
+      color: #333333;
+      font-weight: 300;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-menu a:hover, .mobile-menu a.active {
+      background: #84766A;
+      color: #F8F4EF;
+    }
+
+    .mobile-submenu {
+      display: none;
+      padding-left: 20px;
+      background: #f9f9f9;
+    }
+
+    .mobile-submenu.active {
+      display: block;
+    }
+
+    .mobile-submenu a {
+      padding: calc(12px * var(--menu-scale)) calc(10px * var(--menu-scale));
+      border-bottom: 1px solid #eee;
+      font-size: calc(var(--menu-font-size) * 0.96);
+    }
+
+    .mobile-toggle {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .mobile-toggle::after {
+      content: '+';
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-toggle.active::after {
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       4) Desktop Top-Level Items
     ───────────────────────────────────────────────────────────── */
     .menu > li {
       position: relative;
-      margin-right: 30px; /* space between top-level siblings */
+      margin-right: 20px;
     }
 
-    .menu > li > a {
+    .menu > li > a, .menu > li > span {
       display: block;
-      padding: 14px 10px;
+      padding: calc(12px * var(--menu-scale)) calc(8px * var(--menu-scale));
       color: #333333;
-      font-size: 16px;
-      font-weight: 300;            /* Montserrat Light */
-      border-radius: 4px;
+      font-size: var(--menu-font-size);
+      font-weight: 300;
       transition: color 0.2s ease, transform 0.2s ease;
-      text-align: left;            /* left-aligned text */
+      text-align: left;
+      white-space: nowrap;
     }
 
-    .menu > li > a:hover {
-      color: #8B4000; /* brown on hover */
+    .menu > li > span {
+      cursor: default;
+    }
+
+    .menu > li > a:hover, .menu > li > span:hover {
+      color: #84766A;
       transform: scale(1.05);
     }
 
-    .menu > li > a.active {
-      background: #8B4000;
-      color: #F8F4EF; /* ivory text when clicked/active */
-      font-weight: 500;
-    }
-
     /* ─────────────────────────────────────────────────────────────
-       4) First-Level Dropdown Container + Shadow
+       5) First-Level Dropdown Container
     ───────────────────────────────────────────────────────────── */
     .menu li > ul {
       list-style: none;
       position: absolute;
-      top: 100%;       /* directly below the parent link */
-      left: 0;         /* align edges flush left with parent */
-      background: #ffffff;
+      top: 100%;
+      left: 0;
+      background: var(--dropdown-bg);
       border: 1px solid #ddd;
       min-width: 200px;
+      max-width: 90vw;
       opacity: 0;
       transform: translateY(-10px);
       transition: opacity 0.4s ease, transform 0.4s ease;
-      border-radius: 4px;
       z-index: 1000;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      pointer-events: none; /* until “open” is added */
+      pointer-events: none;
     }
 
     .menu li.has-child.open > ul {
@@ -101,7 +258,7 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
-       5) First-Level Submenu Items: staggered fadeInDown
+       6) First-Level Submenu Items
     ───────────────────────────────────────────────────────────── */
     .menu li > ul > li {
       position: relative;
@@ -111,7 +268,7 @@
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
     }
-    /* Stagger delays for up to 12 items (add more if needed) */
+
     .menu li.has-child.open > ul > li:nth-child(1)  { animation-delay: 0.05s; }
     .menu li.has-child.open > ul > li:nth-child(2)  { animation-delay: 0.10s; }
     .menu li.has-child.open > ul > li:nth-child(3)  { animation-delay: 0.15s; }
@@ -124,45 +281,57 @@
     .menu li.has-child.open > ul > li:nth-child(10) { animation-delay: 0.50s; }
     .menu li.has-child.open > ul > li:nth-child(11) { animation-delay: 0.55s; }
     .menu li.has-child.open > ul > li:nth-child(12) { animation-delay: 0.60s; }
-    /* …extend nth-child selectors if you have more than 12 items */
 
-    .menu li > ul > li > a {
+    .menu li > ul > li > a, .menu li > ul > li > span {
       display: block;
       padding: 10px 14px;
       color: #333333;
       font-weight: 300;
-      border-radius: 4px;
       white-space: nowrap;
-      transition: color 0.2s ease, transform 0.2s ease-in-out;
+      transition: all 0.2s ease;
       text-align: left;
+      border: 2px solid transparent;
+      position: relative;
+      font-size: calc(var(--menu-font-size) * 0.96);
     }
 
-    .menu li > ul > li > a:hover {
-      color: #8B4000;
-      transform: scale(1.03);
+    .menu li > ul > li > span {
+      cursor: default;
     }
+
+    .menu li > ul > li > a:hover, .menu li > ul > li > span:hover {
+      color: #84766A;
+      background: rgba(132, 118, 106, 0.1);
+      transform: scale(1.02);
+    }
+
     .menu li > ul > li > a.active {
-      background: #8B4000;
+      background: #84766A;
       color: #F8F4EF;
       font-weight: 500;
+      border: 2px solid #ffffff;
     }
 
+    .menu li > ul > li > a:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
 
     /* ─────────────────────────────────────────────────────────────
-       6) Second-Level Dropdown Container + Shadow
+       7) Second-Level Dropdown Container
     ───────────────────────────────────────────────────────────── */
     .menu li > ul > li > ul {
       list-style: none;
       position: absolute;
       top: 0;
-      left: 100%;  /* children appear to the right of their parent item */
-      background: #ffffff;
+      left: 100%;
+      background: var(--dropdown-bg);
       border: 1px solid #ddd;
       min-width: 200px;
+      max-width: 90vw;
       opacity: 0;
       transform: translateY(-10px);
       transition: opacity 0.4s ease, transform 0.4s ease;
-      border-radius: 4px;
       z-index: 1000;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       pointer-events: none;
@@ -175,125 +344,207 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
-       7) Second-Level Submenu Items: slideThenWave + waveDrop
+       8) Second-Level Submenu Items
     ───────────────────────────────────────────────────────────── */
     .menu li > ul > li > ul > li {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-15px) translateX(10px);
     }
 
-    /* First grandchild (slide from left + wave) */
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(1) {
-      animation-name: slideThenWave;
-      animation-duration: 0.6s;
+      animation-name: cascadeDrop;
+      animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.05s;
     }
-    /* All remaining grandchildren “waveDrop” with staggered delays */
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(2) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.15s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(3) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.25s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(4) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.35s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(5) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.45s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(6) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.55s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(7) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.65s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(8) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.75s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(9) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.85s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(10) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 0.95s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(11) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 1.05s;
     }
     .menu li.has-child > ul > li.has-child.open > ul > li:nth-child(12) {
-      animation-name: waveDrop;
+      animation-name: cascadeDrop;
       animation-duration: 0.4s;
       animation-fill-mode: forwards;
       animation-delay: 1.15s;
     }
-    /* …extend nth-child if there are more grandchildren */
 
     .menu li > ul > li > ul > li > a {
       display: block;
       padding: 10px 14px;
       color: #333333;
       font-weight: 300;
-      border-radius: 4px;
       white-space: nowrap;
-      transition: color 0.2s ease, transform 0.2s ease;
+      transition: all 0.2s ease;
       text-align: left;
+      border: 2px solid transparent;
+      position: relative;
+      font-size: calc(var(--menu-font-size) * 0.92);
     }
 
     .menu li > ul > li > ul > li > a:hover {
-      color: #8B4000;
-      transform: scale(1.03);
+      color: #84766A;
+      background: rgba(132, 118, 106, 0.1);
+      transform: scale(1.02);
     }
+
     .menu li > ul > li > ul > li > a.active {
-      background: #8B4000;
+      background: #84766A;
       color: #F8F4EF;
       font-weight: 500;
+      border: 2px solid #ffffff;
     }
 
+    .menu li > ul > li > ul > li > a:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
 
     /* ─────────────────────────────────────────────────────────────
-       8) Keyframes
+       9) Responsive Breakpoints
+    ───────────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .menu li > ul {
+        min-width: 180px;
+      }
+      
+      .menu li > ul > li > ul {
+        min-width: 180px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .menu {
+        display: none;
+      }
+      
+      .hamburger {
+        display: flex;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1002;
+      }
+      
+      body.menu-open {
+        overflow: hidden;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mobile-menu {
+        padding: 70px 15px 15px;
+      }
+      
+      .mobile-menu a {
+        padding: calc(12px * var(--menu-scale)) calc(8px * var(--menu-scale));
+        font-size: var(--menu-font-size);
+      }
+      
+      .mobile-submenu a {
+        padding: calc(10px * var(--menu-scale)) calc(8px * var(--menu-scale));
+        font-size: calc(var(--menu-font-size) * 0.96);
+      }
+    }
+
+    /* Landscape phones */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .mobile-menu {
+        padding: 60px 15px 15px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .menu {
+        display: none;
+      }
+      .hamburger {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 300px) {
+      .menu {
+        display: none !important;
+      }
+      .hamburger {
+        display: flex !important;
+      }
+    }
+
+    @media (min-width: 401px) {
+      .menu {
+        display: flex !important;
+      }
+      .hamburger {
+        display: none !important;
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       10) Keyframes
     ───────────────────────────────────────────────────────────── */
     @keyframes fadeInDown {
       0% { opacity: 0; transform: translateY(-10px); }
       100% { opacity: 1; transform: translateY(0); }
     }
-    @keyframes slideThenWave {
-      0%   { opacity: 0; transform: translateX(-20px) translateY(0); }
-      40%  { opacity: 1; transform: translateX(0) translateY(0); }
-      60%  { opacity: 1; transform: translateY(3px) translateX(5px); }
-      100% { opacity: 1; transform: translateY(0) translateX(0); }
-    }
-    @keyframes waveDrop {
+    
+    @keyframes cascadeDrop {
       0%   { opacity: 0; transform: translateY(-15px) translateX(10px); }
       60%  { opacity: 1; transform: translateY(3px) translateX(5px); }
       100% { opacity: 1; transform: translateY(0) translateX(0); }
@@ -302,123 +553,170 @@
 </head>
 
 <body>
-  <!-- ─────────────────────────────────────────────────────────────
-     9) Condensed Menu: three top-level items flush left
-     (“ABOUT,” “PUPPIES,” “MORE INFO”)
-  ───────────────────────────────────────────────────────────── -->
-  <ul class="menu">
-    <!-- ABOUT -->
-    <li class="has-child">
-      <a href="#">ABOUT</a>
+  <div class="menu-container">
+    <!-- Hamburger Menu Button (Mobile) -->
+    <button class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Desktop Menu -->
+    <ul class="menu" id="desktop-menu">
+      <!-- ABOUT -->
+      <li class="has-child">
+        <span>ABOUT</span>
+        <ul>
+          <li><a href="https://www.lonestarridgebacks.com/about-us">About Us</a></li>
+          <li><a href="https://www.lonestarridgebacks.com/testimonials">Testimonials</a></li>
+          <li><a href="https://www.lonestarridgebacks.com/contact">Contact</a></li>
+        </ul>
+      </li>
+
+      <!-- PUPPIES -->
+      <li class="has-child">
+        <span>PUPPIES</span>  
+        <ul>
+          <li><a href="https://www.lonestarridgebacks.com/sophie">Sophie</a></li>
+          
+          <li class="has-child">
+            <a href="/puppies/current-litter">Current Litter</a>
+            <ul>
+              <li><a href="/puppies/current-litter/group-photos">Group Photos</a></li>
+              <li><a href="/puppies/current-litter/lainey-wilson">Lainey</a></li>
+              <li><a href="/puppies/current-litter/dolly-parton">Dolly</a></li>
+              <li><a href="/puppies/current-litter/miley-cyrus">Miley</a></li>
+              <li><a href="/puppies/current-litter/elton-john">Elton</a></li>
+              <li><a href="/puppies/current-litter/cody-johnson">CoJo</a></li>
+              <li><a href="/puppies/current-litter/post-malone">Malone</a></li>
+              <li><a href="/puppies/current-litter/notorious-big">Biggie</a></li>
+              <li><a href="/puppies/current-litter/johnny-cash">Cash</a></li>
+              <li><a href="/puppies/current-litter/journey">Journey</a></li>
+              <li><a href="/puppies/current-litter/bruno-mars">Bruno</a></li>
+            </ul>
+          </li>
+
+          <li class="has-child">
+            <a href="/puppies/past-litters">Past Litters</a>
+            <ul>
+              <li><a href="/puppies/past-litters/group-photos">Group Photos</a></li>
+              <li><a href="/puppies/past-litters/ross">Ross</a></li>
+              <li><a href="/puppies/past-litters/joey">Joey</a></li>
+              <li><a href="/puppies/past-litters/chandler">Chandler</a></li>
+              <li><a href="/puppies/past-litters/richard">Richard</a></li>
+              <li><a href="/puppies/past-litters/monica">Monica</a></li>
+              <li><a href="/puppies/past-litters/rachel">Rachel</a></li>
+              <li><a href="/puppies/past-litters/phoebe">Phoebe</a></li>
+              <li><a href="/puppies/past-litters/emma">Emma</a></li>
+              <li><a href="/puppies/past-litters/estelle">Estelle</a></li>
+              <li><a href="/puppies/past-litters/carol">Carol</a></li>
+              <li><a href="/puppies/past-litters/janice">Janice</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+
+      <!-- MORE INFO -->
+      <li class="has-child">
+        <span>MORE INFO</span>
+        <ul>
+          <li><a href="/adoption-process-pricing">Adoption Process &amp; Pricing</a></li>
+          <li><a href="/puppy-travel-delivery">Puppy Travel &amp; Delivery</a></li>
+          <li><a href="/financing">Financing</a></li>
+          <li><a href="/adoption-application">Adoption Application</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
       <ul>
-        <li><a href="/about-lone-star-ridgebacks">About Lone Star Ridgebacks</a></li>
-        <li><a href="/testimonials">Testimonials</a></li>
-        <li><a href="/contact">Contact</a></li>
+        <li>
+          <span class="mobile-toggle">ABOUT</span>
+          <ul class="mobile-submenu">
+            <li><a href="/about-lone-star-ridgebacks">About Us</a></li>
+            <li><a href="/testimonials">Testimonials</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </li>
+        
+        <li>
+          <span class="mobile-toggle">PUPPIES</span>
+          <ul class="mobile-submenu">
+            <li><a href="/sophie">Sophie</a></li>
+            <li>
+              <a href="/puppies/current-litter" class="mobile-toggle">Current Litter</a>
+              <ul class="mobile-submenu">
+                <li><a href="/puppies/current-litter/group-photos">Group Photos</a></li>
+                <li><a href="/puppies/current-litter/lainey-wilson">Lainey</a></li>
+                <li><a href="/puppies/current-litter/dolly-parton">Dolly</a></li>
+                <li><a href="/puppies/current-litter/miley-cyrus">Miley</a></li>
+                <li><a href="/puppies/current-litter/elton-john">Elton</a></li>
+                <li><a href="/puppies/current-litter/cody-johnson">CoJo</a></li>
+                <li><a href="/puppies/current-litter/post-malone">Malone</a></li>
+                <li><a href="/puppies/current-litter/notorious-big">Biggie</a></li>
+                <li><a href="/puppies/current-litter/johnny-cash">Cash</a></li>
+                <li><a href="/puppies/current-litter/journey">Journey</a></li>
+                <li><a href="/puppies/current-litter/bruno-mars">Bruno</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="/puppies/past-litters" class="mobile-toggle">Past Litters</a>
+              <ul class="mobile-submenu">
+                <li><a href="/puppies/past-litters/group-photos">Group Photos</a></li>
+                <li><a href="/puppies/past-litters/ross">Ross</a></li>
+                <li><a href="/puppies/past-litters/joey">Joey</a></li>
+                <li><a href="/puppies/past-litters/chandler">Chandler</a></li>
+                <li><a href="/puppies/past-litters/richard">Richard</a></li>
+                <li><a href="/puppies/past-litters/monica">Monica</a></li>
+                <li><a href="/puppies/past-litters/rachel">Rachel</a></li>
+                <li><a href="/puppies/past-litters/phoebe">Phoebe</a></li>
+                <li><a href="/puppies/past-litters/emma">Emma</a></li>
+                <li><a href="/puppies/past-litters/estelle">Estelle</a></li>
+                <li><a href="/puppies/past-litters/carol">Carol</a></li>
+                <li><a href="/puppies/past-litters/janice">Janice</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        
+        <li>
+          <span class="mobile-toggle">MORE INFO</span>
+          <ul class="mobile-submenu">
+            <li><a href="/adoption-process-pricing">Adoption Process &amp; Pricing</a></li>
+            <li><a href="/puppy-travel-delivery">Puppy Travel &amp; Delivery</a></li>
+            <li><a href="/financing">Financing</a></li>
+            <li><a href="/adoption-application">Adoption Application</a></li>
+          </ul>
+        </li>
       </ul>
-    </li>
+    </div>
+  </div>
 
-    <!-- PUPPIES (with Parents nested) -->
-    <li class="has-child">
-      <a href="/puppies">PUPPIES</a>
-      <ul>
-        <!-- Current Litter -->
-        <li class="has-child">
-          <a href="#">Current Litter</a>
-          <ul>
-            <li><a href="/puppies/current-litter/group-photos">Group Photos</a></li>
-            <li><a href="/puppies/current-litter/lainey-wilson">Lainey Wilson (Lainey)</a></li>
-            <li><a href="/puppies/current-litter/dolly-parton">Dolly Parton (Dolly)</a></li>
-            <li><a href="/puppies/current-litter/miley-cyrus">Miley Cyrus (Miley)</a></li>
-            <li><a href="/puppies/current-litter/elton-john">Elton John (Elton)</a></li>
-            <li><a href="/puppies/current-litter/cody-johnson">Cody Johnson (CoJo)</a></li>
-            <li><a href="/puppies/current-litter/post-malone">Post Malone (Malone)</a></li>
-            <li><a href="/puppies/current-litter/notorious-big">Notorious B.I.G. (Biggie)</a></li>
-            <li><a href="/puppies/current-litter/johnny-cash">Johnny Cash (Cash)</a></li>
-            <li><a href="/puppies/current-litter/journey">Journey</a></li>
-            <li><a href="/puppies/current-litter/bruno-mars">Bruno Mars (Bruno)</a></li>
-          </ul>
-        </li>
-
-        <!-- Past Litters -->
-        <li class="has-child">
-          <a href="#">Past Litters</a>
-          <ul>
-            <li><a href="/puppies/past-litters/group-photos">Group Photos</a></li>
-            <li><a href="/puppies/past-litters/ross">Ross</a></li>
-            <li><a href="/puppies/past-litters/joey">Joey</a></li>
-            <li><a href="/puppies/past-litters/chandler">Chandler</a></li>
-            <li><a href="/puppies/past-litters/richard">Richard</a></li>
-            <li><a href="/puppies/past-litters/monica">Monica</a></li>
-            <li><a href="/puppies/past-litters/rachel">Rachel</a></li>
-            <li><a href="/puppies/past-litters/phoebe">Phoebe</a></li>
-            <li><a href="/puppies/past-litters/emma">Emma</a></li>
-            <li><a href="/puppies/past-litters/estelle">Estelle</a></li>
-            <li><a href="/puppies/past-litters/carol">Carol</a></li>
-            <li><a href="/puppies/past-litters/janice">Janice</a></li>
-          </ul>
-        </li>
-
-        <!-- Pricing & Reservation Process -->
-        <li class="has-child">
-          <a href="#">Pricing &amp; Reservation Process</a>
-          <ul>
-            <li><a href="/puppies/pricing-reservation/adoption-process">Adoption Process</a></li>
-            <li><a href="/puppies/pricing-reservation/financing">Financing</a></li>
-            <li><a href="/puppies/pricing-reservation/puppy-travel-delivery">Puppy Travel & Delivery</a></li>
-          </ul>
-        </li>
-
-        <!-- Parents (now under Puppies) -->
-        <li class="has-child">
-          <a href="#">Parents</a>
-          <ul>
-            <li><a href="/parents/dam">Dam</a></li>
-            <li><a href="/parents/sire">Sire</a></li>
-          </ul>
-        </li>
-
-        <!-- Adoption Application -->
-        <li><a href="/puppies/adoption-application">Adoption Application</a></li>
-      </ul>
-    </li>
-
-    <!-- MORE INFO -->
-    <li class="has-child">
-      <a href="#">MORE INFO</a>
-      <ul>
-        <li><a href="/shop">Shop</a></li>
-        <li><a href="/resources">Resources</a></li>
-        <li><a href="/faq">FAQ</a></li>
-      </ul>
-    </li>
-  </ul>
-
-
-  <!-- ─────────────────────────────────────────────────────────────────
-     10) JavaScript: Handle “open”/“closing” & Active-link toggling
-  ───────────────────────────────────────────────────────────────── -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const body = document.body;
+      
+      // Desktop menu functionality
       const parents = document.querySelectorAll('.menu li.has-child');
-
       parents.forEach(parentLi => {
-        // Mouse‐enter: clear “closing,” add “open”
         parentLi.addEventListener('mouseenter', () => {
           parentLi.classList.remove('closing');
           parentLi.classList.add('open');
         });
 
-        // Mouse‐leave: remove “open,” add “closing,” then clear after animation
         parentLi.addEventListener('mouseleave', () => {
           parentLi.classList.remove('open');
           parentLi.classList.add('closing');
           setTimeout(() => {
             parentLi.classList.remove('closing');
-          }, 700); // matches the longest grandchild delay (0.6s) + buffer
+          }, 700);
         });
       });
 
-      // Click any <a> to toggle “active” (brown background + ivory text)
+      // Desktop click handlers (only for actual links)
       document.querySelectorAll('.menu a').forEach(link => {
         link.addEventListener('click', function(e) {
           if (this.getAttribute('href') === '#') {
@@ -428,6 +726,111 @@
           this.classList.add('active');
         });
       });
+
+      // Hamburger menu toggle
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        body.classList.toggle('menu-open');
+      });
+
+      // Mobile menu toggles - Updated to handle both links and toggles
+      document.querySelectorAll('.mobile-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+          // If it's a link (has href), let it navigate but also handle the toggle
+          if (this.hasAttribute('href') && this.getAttribute('href') !== '#') {
+            // For mobile litter links, we want both navigation and toggle functionality
+            // The toggle functionality will still work
+          } else {
+            e.preventDefault();
+          }
+          
+          // Close other open submenus at the same level
+          const parentLi = this.parentElement;
+          const siblings = parentLi.parentElement.children;
+          
+          Array.from(siblings).forEach(sibling => {
+            if (sibling !== parentLi) {
+              const siblingToggle = sibling.querySelector('.mobile-toggle');
+              const siblingSubmenu = sibling.querySelector('.mobile-submenu');
+              if (siblingToggle && siblingSubmenu) {
+                siblingToggle.classList.remove('active');
+                siblingSubmenu.classList.remove('active');
+              }
+            }
+          });
+          
+          // Toggle current submenu
+          this.classList.toggle('active');
+          const submenu = this.nextElementSibling;
+          if (submenu && submenu.classList.contains('mobile-submenu')) {
+            submenu.classList.toggle('active');
+          }
+        });
+      });
+
+      // Mobile menu item clicks (for non-toggle links)
+      document.querySelectorAll('.mobile-menu a:not(.mobile-toggle)').forEach(link => {
+        link.addEventListener('click', function() {
+          // Close mobile menu when a link is clicked
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          body.classList.remove('menu-open');
+          
+          // Set active state
+          document.querySelectorAll('.mobile-menu a.active').forEach(el => el.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+
+      // Close mobile menu when clicking outside
+      mobileMenu.addEventListener('click', (e) => {
+        if (e.target === mobileMenu) {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          body.classList.remove('menu-open');
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          body.classList.remove('menu-open');
+        }
+      });
+
+      function updateMenuScale() {
+        // Wix proportional scaling logic approximation:
+        // Wix typically scales fonts and paddings more noticeably between 320px and 1400px.
+        // We'll use a scale from 0.85 (mobile) to 1.25 (large desktop).
+        const minWidth = 320;
+        const maxWidth = 1400;
+        const minScale = 0.85;
+        const maxScale = 1.25;
+        const w = Math.max(window.innerWidth, minWidth);
+        let scale = ((w - minWidth) / (maxWidth - minWidth)) * (maxScale - minScale) + minScale;
+        scale = Math.max(minScale, Math.min(maxScale, scale));
+        document.documentElement.style.setProperty('--menu-scale', scale);
+
+        // Hamburger/menu switch
+        const menu = document.getElementById('desktop-menu');
+        const hamburger = document.getElementById('hamburger');
+        if (w < 300) {
+          if (menu) menu.style.display = 'none';
+          if (hamburger) hamburger.style.display = 'flex';
+        } else if (w < 401) {
+          if (menu) menu.style.display = 'none';
+          if (hamburger) hamburger.style.display = 'flex';
+        } else {
+          if (menu) menu.style.display = 'flex';
+          if (hamburger) hamburger.style.display = 'none';
+        }
+      }
+
+      window.addEventListener('resize', updateMenuScale);
+      window.addEventListener('DOMContentLoaded', updateMenuScale);
     });
   </script>
 </body>
