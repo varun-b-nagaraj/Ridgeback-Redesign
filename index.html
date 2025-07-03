@@ -13,11 +13,22 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --base-font-size: clamp(1.15rem, 1.7vw, 2rem);
+      --menu-padding: clamp(0.8rem, 1.5vw, 2rem);
+      --item-padding: clamp(0.6rem, 1vw, 1.2rem);
+      --border-radius: clamp(0.2rem, 0.3vw, 0.5rem);
+      --shadow-size: clamp(0.2rem, 0.4vw, 0.8rem);
+      --hamburger-size: clamp(1.2rem, 2vw, 2rem);
+      --dropdown-width: clamp(12rem, 20vw, 25rem);
+    }
+
     body {
       font-family: 'Montserrat', sans-serif;
       font-weight: 300;
       background: transparent;
       overflow-x: hidden;
+      font-size: var(--base-font-size);
     }
 
     .menu-container {
@@ -25,32 +36,36 @@
       top: 0;
       left: 0;
       z-index: 1000;
+      transform-origin: top left;
+      background: transparent;
     }
 
     /* Hamburger Button */
     .hamburger {
       display: none;
       position: fixed;
-      top: 15px;
-      left: 15px;
+      top: clamp(0.6rem, 1.2vw, 1.2rem);
+      left: clamp(0.6rem, 1.2vw, 1.2rem);
       z-index: 1002;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 8px;
+      padding: clamp(0.4rem, 0.8vw, 0.8rem);
+      width: var(--hamburger-size);
+      height: var(--hamburger-size);
     }
 
     .hamburger span {
       display: block;
-      width: 25px;
-      height: 3px;
+      width: 100%;
+      height: clamp(0.15rem, 0.2vw, 0.3rem);
       background: #333;
-      margin: 4px 0;
+      margin: clamp(0.2rem, 0.3vw, 0.4rem) 0;
       transition: all 0.3s ease;
     }
 
     .hamburger.active span:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
+      transform: rotate(45deg) translate(clamp(0.3rem, 0.5vw, 0.6rem), clamp(0.3rem, 0.5vw, 0.6rem));
     }
 
     .hamburger.active span:nth-child(2) {
@@ -58,7 +73,7 @@
     }
 
     .hamburger.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -6px);
+      transform: rotate(-45deg) translate(clamp(0.35rem, 0.6vw, 0.7rem), clamp(-0.3rem, -0.5vw, -0.6rem));
     }
 
     /* Main Menu */
@@ -66,25 +81,34 @@
       list-style: none;
       display: flex;
       background: transparent;
-      padding: 20px;
+      padding: 0;
+      gap: 0;
+      margin: 0;
     }
 
-    .menu li {
-      position: relative;
-      margin-right: 20px;
+    .menu > li {
+      margin: 0;
+    }
+
+    .menu > li:not(:last-child) {
+      margin-right: clamp(0.8rem, 1.5vw, 2rem);
     }
 
     .menu > li > span,
     .menu > li > a {
       display: block;
-      padding: 12px 8px;
+      /* Remove all padding/margin for top-level items */
+      padding: 0;
+      padding-right: 10px;
+      margin: 0;
       color: #333;
-      font-size: 16px;
+      font-size: var(--base-font-size);
       font-weight: 300;
       text-decoration: none;
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.2s ease;
+      border-radius: var(--border-radius);
     }
 
     .menu > li > span:hover,
@@ -100,12 +124,13 @@
       top: 100%;
       left: 0;
       background: white;
-      border: 1px solid #ddd;
-      min-width: 200px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border: none;
+      min-width: var(--dropdown-width);
+      border-radius: var(--border-radius);
+      box-shadow: 0 var(--shadow-size) calc(var(--shadow-size) * 1.5) rgba(0,0,0,0.15);
       opacity: 0;
       visibility: hidden;
-      transform: translateY(-10px);
+      transform: translateY(clamp(-0.5rem, -0.8vw, -1rem));
       transition: all 0.3s ease;
       z-index: 1001;
     }
@@ -124,14 +149,15 @@
     .menu ul a,
     .menu ul span {
       display: block;
-      padding: 12px 16px;
+      padding: calc(var(--item-padding) * 0.8) calc(var(--item-padding) * 1.2);
       color: #333;
-      font-size: 15px;
+      font-size: calc(var(--base-font-size) * 0.9);
       font-weight: 300;
       text-decoration: none;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: none;
       transition: all 0.2s ease;
       cursor: pointer;
+      background: white;
     }
 
     .menu ul li:last-child a,
@@ -157,6 +183,34 @@
       margin-left: 1px;
     }
 
+    /* Cascade Animation for Desktop */
+    .menu li:hover > ul > li {
+      opacity: 0;
+      transform: translateX(clamp(-0.5rem, -0.8vw, -1rem));
+      animation: cascadeIn 0.3s ease forwards;
+    }
+
+    .menu li:hover > ul > li:nth-child(1) { animation-delay: 0.05s; }
+    .menu li:hover > ul > li:nth-child(2) { animation-delay: 0.1s; }
+    .menu li:hover > ul > li:nth-child(3) { animation-delay: 0.15s; }
+    .menu li:hover > ul > li:nth-child(4) { animation-delay: 0.2s; }
+    .menu li:hover > ul > li:nth-child(5) { animation-delay: 0.25s; }
+    .menu li:hover > ul > li:nth-child(6) { animation-delay: 0.3s; }
+    .menu li:hover > ul > li:nth-child(7) { animation-delay: 0.35s; }
+    .menu li:hover > ul > li:nth-child(8) { animation-delay: 0.4s; }
+    .menu li:hover > ul > li:nth-child(9) { animation-delay: 0.45s; }
+    .menu li:hover > ul > li:nth-child(10) { animation-delay: 0.5s; }
+    .menu li:hover > ul > li:nth-child(11) { animation-delay: 0.55s; }
+    .menu li:hover > ul > li:nth-child(12) { animation-delay: 0.6s; }
+    .menu li:hover > ul > li:nth-child(13) { animation-delay: 0.65s; }
+
+    @keyframes cascadeIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     /* Desktop-only links - hide mobile version */
     .desktop-link {
       display: block !important;
@@ -168,6 +222,13 @@
 
     /* Mobile Styles */
     @media (max-width: 768px) {
+      :root {
+        --base-font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+        --menu-padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem);
+        --item-padding: clamp(0.8rem, 3vw, 1.5rem);
+        --hamburger-size: clamp(2rem, 6vw, 3rem);
+      }
+
       .hamburger {
         display: block;
       }
@@ -189,10 +250,11 @@
         height: 100vh;
         background: white;
         flex-direction: column;
-        padding: 60px 20px 20px 20px;
+        padding: var(--menu-padding);
         overflow-y: auto;
         transition: left 0.3s ease;
         z-index: 1001;
+        gap: 0;
       }
 
       .menu.active {
@@ -201,13 +263,13 @@
 
       .menu li {
         margin: 0;
-        border-bottom: 1px solid #eee;
+        border-bottom: none;
       }
 
       .menu > li > span,
       .menu > li > a {
-        padding: 16px 20px;
-        font-size: 16px;
+        padding: var(--item-padding);
+        font-size: var(--base-font-size);
         border-bottom: none;
       }
 
@@ -219,34 +281,64 @@
         transform: none;
         box-shadow: none;
         border: none;
-        background: #f8f8f8;
+        border-radius: 0;
+        background: white;
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.4s ease;
+        min-width: auto;
       }
 
       .menu li.open > ul {
-        max-height: 800px;
+        max-height: 50vh;
       }
 
       .menu ul a,
       .menu ul span {
-        padding: 12px 40px;
-        font-size: 14px;
-        border-bottom: 1px solid #eee;
-        background: none;
+        padding: calc(var(--item-padding) * 0.75) calc(var(--item-padding) * 2);
+        font-size: calc(var(--base-font-size) * 0.85);
+        border-bottom: none;
+        background: white;
       }
 
       .menu ul ul {
-        background: #f0f0f0;
+        background: white;
         left: 0;
         margin-left: 0;
       }
 
       .menu ul ul a,
       .menu ul ul span {
-        padding: 10px 60px;
-        font-size: 13px;
+        padding: calc(var(--item-padding) * 0.6) calc(var(--item-padding) * 3);
+        font-size: calc(var(--base-font-size) * 0.75);
+      }
+
+      /* Mobile Cascade Animation */
+      .menu li.open > ul > li {
+        opacity: 0;
+        transform: translateX(clamp(-1rem, -4vw, -2rem));
+        animation: mobileCascadeIn 0.4s ease forwards;
+      }
+
+      .menu li.open > ul > li:nth-child(1) { animation-delay: 0.05s; }
+      .menu li.open > ul > li:nth-child(2) { animation-delay: 0.1s; }
+      .menu li.open > ul > li:nth-child(3) { animation-delay: 0.15s; }
+      .menu li.open > ul > li:nth-child(4) { animation-delay: 0.2s; }
+      .menu li.open > ul > li:nth-child(5) { animation-delay: 0.25s; }
+      .menu li.open > ul > li:nth-child(6) { animation-delay: 0.3s; }
+      .menu li.open > ul > li:nth-child(7) { animation-delay: 0.35s; }
+      .menu li.open > ul > li:nth-child(8) { animation-delay: 0.4s; }
+      .menu li.open > ul > li:nth-child(9) { animation-delay: 0.45s; }
+      .menu li.open > ul > li:nth-child(10) { animation-delay: 0.5s; }
+      .menu li.open > ul > li:nth-child(11) { animation-delay: 0.55s; }
+      .menu li.open > ul > li:nth-child(12) { animation-delay: 0.6s; }
+      .menu li.open > ul > li:nth-child(13) { animation-delay: 0.65s; }
+
+      @keyframes mobileCascadeIn {
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       /* Mobile Toggle Indicators */
@@ -260,10 +352,10 @@
       .menu .has-submenu > span::after,
       .menu .has-submenu > a::after {
         content: '+';
-        font-size: 22px;
+        font-size: calc(var(--base-font-size) * 1.3);
         font-weight: 300;
         transition: transform 0.3s ease;
-        margin-left: 10px;
+        margin-left: clamp(0.5rem, 2vw, 1rem);
         flex-shrink: 0;
       }
 
@@ -290,28 +382,32 @@
       }
     }
 
-    /* Small phone adjustments */
+    /* Small screen adjustments */
     @media (max-width: 480px) {
-      .menu {
-        padding: 50px 15px 15px 15px;
+      :root {
+        --base-font-size: clamp(1rem, 5.5vw, 1.3rem);
+        --menu-padding: clamp(2.5rem, 10vw, 4rem) clamp(0.8rem, 4vw, 1.5rem) clamp(0.8rem, 4vw, 1.5rem);
+        --item-padding: clamp(0.7rem, 4vw, 1.2rem);
       }
-      
-      .menu > li > span,
-      .menu > li > a {
-        font-size: 15px;
-        padding: 14px 15px;
+    }
+
+    /* Large screen adjustments */
+    @media (min-width: 1200px) {
+      :root {
+        --base-font-size: clamp(1.2rem, 1.4vw, 2rem);
+        --menu-padding: clamp(1rem, 1.8vw, 2.5rem);
+        --item-padding: clamp(0.8rem, 1.2vw, 1.5rem);
+        --dropdown-width: clamp(15rem, 22vw, 30rem);
       }
-      
-      .menu ul a,
-      .menu ul span {
-        padding: 11px 30px;
-        font-size: 13px;
-      }
-      
-      .menu ul ul a,
-      .menu ul ul span {
-        padding: 9px 45px;
-        font-size: 12px;
+    }
+
+    /* Ultra-wide screen adjustments */
+    @media (min-width: 1920px) {
+      :root {
+        --base-font-size: clamp(1.4rem, 1.2vw, 2.2rem);
+        --menu-padding: clamp(1.5rem, 2vw, 3rem);
+        --item-padding: clamp(1rem, 1.4vw, 1.8rem);
+        --dropdown-width: clamp(18rem, 25vw, 35rem);
       }
     }
   </style>
