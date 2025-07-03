@@ -20,7 +20,7 @@
       --border-radius: clamp(0.2rem, 0.3vw, 0.5rem);
       --shadow-size: clamp(0.2rem, 0.4vw, 0.8rem);
       --hamburger-size: clamp(3.5rem, 7vw, 6rem); /* wider hamburger */
-      --dropdown-width: clamp(18rem, 28vw, 40rem);
+      --min-dropdown-width: clamp(12rem, 20vw, 16rem); /* minimum width for usability */
     }
 
     body {
@@ -38,6 +38,7 @@
       z-index: 1000;
       transform-origin: top left;
       background: transparent;
+      pointer-events: none; /* Make container click-through */
     }
 
     /* Hamburger Button */
@@ -53,6 +54,7 @@
       padding: clamp(0.6rem, 1vw, 1.2rem); /* increased padding */
       width: var(--hamburger-size);
       height: var(--hamburger-size);
+      pointer-events: auto; /* Ensure hamburger is clickable */
     }
 
     .hamburger span {
@@ -85,10 +87,12 @@
       padding: 0;
       gap: 0;
       margin: 0;
+      pointer-events: auto; /* Re-enable clicks on menu items */
     }
 
     .menu > li {
       margin: 0;
+      position: relative; /* This is key for proper dropdown positioning */
     }
 
     .menu > li:not(:last-child) {
@@ -99,7 +103,8 @@
     .menu > li > a {
       display: block;
       /* Remove all padding/margin for top-level items */
-      padding: 0;
+      padding: 10px;
+      padding-bottom: 10px;
       padding-right: 10px;
       margin: 0;
       color: #333;
@@ -123,10 +128,12 @@
       list-style: none;
       position: absolute;
       top: 100%;
-      left: 0;
+      left: 0; /* This now positions relative to each individual menu item */
       background: white;
       border: none;
-      min-width: var(--dropdown-width);
+      min-width: var(--min-dropdown-width);
+      width: max-content; /* This makes the dropdown fit its content */
+      max-width: clamp(20rem, 35vw, 25rem); /* Prevent it from getting too wide */
       border-radius: var(--border-radius);
       box-shadow: 0 var(--shadow-size) calc(var(--shadow-size) * 1.5) rgba(0,0,0,0.15);
       opacity: 0;
@@ -134,6 +141,7 @@
       transform: translateY(clamp(-0.5rem, -0.8vw, -1rem));
       transition: all 0.3s ease;
       z-index: 1001;
+      pointer-events: auto; /* Ensure dropdowns are clickable */
     }
 
     .menu li:hover > ul {
@@ -159,6 +167,7 @@
       transition: all 0.2s ease;
       cursor: pointer;
       background: white;
+      white-space: nowrap; /* Prevent text wrapping to maintain proper width calculation */
     }
 
     .menu ul li:last-child a,
@@ -182,6 +191,9 @@
       top: 0;
       left: 100%;
       margin-left: 1px;
+      min-width: var(--min-dropdown-width);
+      width: max-content;
+      max-width: clamp(18rem, 30vw, 22rem);
     }
 
     /* Cascade Animation for Desktop */
@@ -221,8 +233,8 @@
       display: none !important;
     }
 
-    /* Mobile Styles */
-    @media (max-width: 768px) {
+    /* Mobile Styles - ONLY under 100px */
+    @media (max-width: 100px) {
       :root {
         --base-font-size: clamp(1.1rem, 4.5vw, 1.4rem);
         --menu-padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem);
@@ -288,6 +300,8 @@
         overflow: hidden;
         transition: max-height 0.4s ease;
         min-width: auto;
+        width: auto;
+        max-width: none;
       }
 
       .menu li.open > ul {
@@ -300,12 +314,15 @@
         font-size: calc(var(--base-font-size) * 0.85);
         border-bottom: none;
         background: white;
+        white-space: normal; /* Allow wrapping on mobile */
       }
 
       .menu ul ul {
         background: white;
         left: 0;
         margin-left: 0;
+        width: auto;
+        max-width: none;
       }
 
       .menu ul ul a,
@@ -371,8 +388,8 @@
       }
     }
 
-    /* Hide mobile-only items on desktop */
-    @media (min-width: 769px) {
+    /* Hide mobile-only items on desktop (101px and above) */
+    @media (min-width: 101px) {
       .menu .has-submenu > span::after,
       .menu .has-submenu > a::after {
         display: none;
@@ -383,22 +400,21 @@
       }
     }
 
-    /* Small screen adjustments */
-    @media (max-width: 480px) {
-      :root {
-        --base-font-size: clamp(1rem, 5.5vw, 1.3rem);
-        --menu-padding: clamp(2.5rem, 10vw, 4rem) clamp(0.8rem, 4vw, 1.5rem) clamp(0.8rem, 4vw, 1.5rem);
-        --item-padding: clamp(0.7rem, 4vw, 1.2rem);
-      }
-    }
-
     /* Large screen adjustments */
     @media (min-width: 1200px) {
       :root {
         --base-font-size: clamp(1.2rem, 1.4vw, 2rem);
         --menu-padding: clamp(1rem, 1.8vw, 2.5rem);
         --item-padding: clamp(0.8rem, 1.2vw, 1.5rem);
-        --dropdown-width: clamp(15rem, 22vw, 30rem);
+        --min-dropdown-width: clamp(14rem, 18vw, 18rem);
+      }
+
+      .menu ul {
+        max-width: clamp(22rem, 30vw, 28rem);
+      }
+
+      .menu ul ul {
+        max-width: clamp(20rem, 28vw, 25rem);
       }
     }
 
@@ -408,7 +424,15 @@
         --base-font-size: clamp(1.4rem, 1.2vw, 2.2rem);
         --menu-padding: clamp(1.5rem, 2vw, 3rem);
         --item-padding: clamp(1rem, 1.4vw, 1.8rem);
-        --dropdown-width: clamp(18rem, 25vw, 35rem);
+        --min-dropdown-width: clamp(16rem, 20vw, 20rem);
+      }
+
+      .menu ul {
+        max-width: clamp(25rem, 32vw, 30rem);
+      }
+
+      .menu ul ul {
+        max-width: clamp(22rem, 30vw, 28rem);
       }
     }
   </style>
@@ -497,21 +521,48 @@
   </div>
 
   <script>
+    // Height communication function for iframe
+    function sendHeight() {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ 
+        type: 'resizeMenu', 
+        height: height 
+      }, '*');
+    }
+
+    // Send menu state to parent window
+    function sendMenuState(isOpen) {
+      window.parent.postMessage({ 
+        type: 'resizeMenu', 
+        open: isOpen 
+      }, '*');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const hamburger = document.getElementById('hamburger');
       const menu = document.getElementById('menu');
       const body = document.body;
+      
+      // Send initial height after DOM is loaded
+      sendHeight();
       
       // Toggle mobile menu
       hamburger.addEventListener('click', function() {
         hamburger.classList.toggle('active');
         menu.classList.toggle('active');
         body.classList.toggle('menu-open');
+        
+        // Send menu state to parent
+        const isOpen = menu.classList.contains('active');
+        sendMenuState(isOpen);
+        
+        // Send height update when menu opens/closes
+        setTimeout(sendHeight, 100); // Small delay to ensure transition completes
       });
 
       // Handle submenu clicks on mobile (for spans only)
       function handleSubmenuClick(e) {
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 100) {
           const clickedItem = e.target.closest('.has-submenu');
           if (clickedItem && e.target.tagName === 'SPAN') {
             e.preventDefault();
@@ -526,13 +577,16 @@
             
             // Toggle current submenu
             clickedItem.classList.toggle('open');
+            
+            // Send height update when submenu opens/closes
+            setTimeout(sendHeight, 100);
           }
         }
       }
 
       // Handle desktop submenu link clicks (allow navigation while maintaining hover dropdown)
       function handleDesktopSubmenuLinkClick(e) {
-        if (window.innerWidth > 768) {
+        if (window.innerWidth > 100) {
           // Allow normal link navigation on desktop
           // The dropdown will show on hover, link will navigate on click
           
@@ -555,15 +609,21 @@
       // Close mobile menu when clicking a link
       document.querySelectorAll('.menu a').forEach(link => {
         link.addEventListener('click', function() {
-          if (window.innerWidth <= 768) {
+          if (window.innerWidth <= 100) {
             hamburger.classList.remove('active');
             menu.classList.remove('active');
             body.classList.remove('menu-open');
+            
+            // Send menu closed state to parent
+            sendMenuState(false);
             
             // Close all submenus
             document.querySelectorAll('.has-submenu').forEach(item => {
               item.classList.remove('open');
             });
+            
+            // Send height update when menu closes
+            setTimeout(sendHeight, 100);
           }
           
           // Handle active states
@@ -580,14 +640,21 @@
             e.preventDefault();
             window.top.location.href = this.href;
           }
-          if (window.innerWidth <= 768) {
+          if (window.innerWidth <= 100) {
             hamburger.classList.remove('active');
             menu.classList.remove('active');
             body.classList.remove('menu-open');
+            
+            // Send menu closed state to parent
+            sendMenuState(false);
+            
             // Close all submenus
             document.querySelectorAll('.has-submenu').forEach(item => {
               item.classList.remove('open');
             });
+            
+            // Send height update when menu closes
+            setTimeout(sendHeight, 100);
           }
           // Handle active states
           document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
@@ -597,28 +664,46 @@
 
       // Close mobile menu on window resize
       window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
+        if (window.innerWidth > 100) {
           hamburger.classList.remove('active');
           menu.classList.remove('active');
           body.classList.remove('menu-open');
+          
+          // Send menu closed state to parent
+          sendMenuState(false);
           
           // Close all submenus
           document.querySelectorAll('.has-submenu').forEach(item => {
             item.classList.remove('open');
           });
         }
+        
+        // Send height update on resize
+        setTimeout(sendHeight, 100);
       });
 
       // Close mobile menu when clicking outside
       document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 768 && 
+        if (window.innerWidth <= 100 && 
             !menu.contains(e.target) && 
             !hamburger.contains(e.target) &&
             menu.classList.contains('active')) {
           hamburger.classList.remove('active');
           menu.classList.remove('active');
           body.classList.remove('menu-open');
+          
+          // Send menu closed state to parent
+          sendMenuState(false);
+          
+          // Send height update when menu closes
+          setTimeout(sendHeight, 100);
         }
+      });
+
+      // Send height update when window loads and resizes
+      window.addEventListener('load', sendHeight);
+      window.addEventListener('resize', function() {
+        setTimeout(sendHeight, 100);
       });
     });
   </script>
